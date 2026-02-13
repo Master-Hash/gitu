@@ -10,6 +10,7 @@ use ratatui::Frame;
 use ratatui::prelude::*;
 use tui_prompts::State as _;
 use unicode_segmentation::UnicodeSegmentation;
+use unicode_width::UnicodeWidthStr;
 
 pub(crate) mod layout;
 mod menu;
@@ -118,8 +119,12 @@ pub(crate) fn layout_line<'a>(layout: &mut UiTree<'a>, line: Line<'a>) {
 }
 
 pub(crate) fn layout_span<'a>(layout: &mut UiTree<'a>, span: (Cow<'a, str>, Style)) {
-    let width = span.0.graphemes(true).count() as u16;
+    let width = display_width(span.0.as_ref()) as u16;
     layout.leaf_with_size(span, [width, 1]);
+}
+
+pub(crate) fn display_width(text: &str) -> usize {
+    text.width()
 }
 
 pub(crate) fn repeat_chars(layout: &mut UiTree, count: usize, chars: &'static str, style: Style) {

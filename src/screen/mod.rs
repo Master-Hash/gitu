@@ -1,6 +1,6 @@
 use crate::config::StyleConfig;
 use crate::ui::layout::OPTS;
-use crate::ui::{UiTree, layout_span};
+use crate::ui::{UiTree, display_width, layout_span};
 use crate::{item_data::ItemData, ui};
 use ratatui::{layout::Size, style::Style, text::Line};
 use unicode_segmentation::UnicodeSegmentation;
@@ -399,10 +399,10 @@ pub(crate) fn layout_screen<'a>(
 
                 layout_span(layout, gutter_char);
 
-                line.display.spans.into_iter().for_each(|span| {
+                for span in line.display.spans {
                     let style = bg.patch(line.display.style).patch(span.style);
 
-                    let span_width = span.content.graphemes(true).count();
+                    let span_width = ui::display_width(span.content.as_ref());
 
                     if line_end + span_width >= size.width as usize {
                         // Truncate the span and insert an ellipsis to indicate overflow
@@ -425,7 +425,7 @@ pub(crate) fn layout_screen<'a>(
                         line_end += span_width;
                         ui::layout_span(layout, (span.content, style));
                     }
-                });
+                }
 
                 // Add ellipsis indicator for collapsed sections
                 let item = &screen.items[line.item_index];
